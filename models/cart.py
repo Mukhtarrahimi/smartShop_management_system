@@ -1,23 +1,27 @@
 from models.cart_item import CartItem
 
+
 class Cart:
     def __init__(self):
         self.items = []
-    
+
     def add_product(self, product, quantity=1):
+
         for item in self.items:
+
             if item.product.id == product.id:
                 item.increase_quantity(quantity)
                 return
 
-            
         cart_item = CartItem(product, quantity)
+
         self.items.append(cart_item)
 
     def remove_product(self, product_id):
+
         for item in self.items:
 
-            if self.product.id == product_id:
+            if item.product.id == product_id:
                 self.items.remove(item)
                 return True
 
@@ -27,6 +31,7 @@ class Cart:
         self.items.clear()
 
     def calculate_total(self):
+
         total = 0
 
         for item in self.items:
@@ -34,33 +39,35 @@ class Cart:
 
         return total
 
-
     def apply_discount(self):
 
         total = self.calculate_total()
+
         if total >= 10000:
             return total * 0.10
 
         return 0
 
     def get_final_price(self):
-        
+
         total = self.calculate_total()
+
         discount = self.apply_discount()
 
         return total - discount
 
-    
     def show_cart(self):
+
         if len(self.items) == 0:
-            print('\ncart is empty')
+            print("\nCart is empty.")
             return
-        print('\n ==== your cart ====')
+
+        print("\n====== YOUR CART ======")
 
         for item in self.items:
             print(item)
 
-        print('------------------')
-        print('total: ', self.calculate_total())
-        print('discount: ', self.apply_discount())
-        print('final price: ', self.get_final_price())
+        print("----------------------")
+        print("Total:", self.calculate_total())
+        print("Discount:", self.apply_discount())
+        print("Final Price:", self.get_final_price())
