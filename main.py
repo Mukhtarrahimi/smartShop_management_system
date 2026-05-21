@@ -1,5 +1,6 @@
 from services.product_service import ProductService
 from services.cart_service import CartService
+from services.auth_service import AuthService
 
 cart_service = CartService()
 
@@ -13,7 +14,42 @@ def show_products():
         print(product)
 
 
+def register():
+    print("\n====== REGISTER ======")
+
+    name = input("Name: ")
+    email = input("Email: ")
+    password = input("Password: ")
+
+    try:
+        user = AuthService.register_customer(name, email, password)
+        print("Registration successful.")
+        print(user)
+
+    except ValueError as error:
+        print("Error:", error)
+
+
+def login():
+    print("\n====== LOGIN ======")
+
+    email = input("Email: ")
+    password = input("Password: ")
+
+    user = AuthService.login(email, password)
+
+    if user is None:
+        print("Invalid email or password")
+        return
+
+    print("Login successful.")
+    print("Welcome", user.name)
+
+
 def add_to_cart():
+    if not AuthService.is_customer():
+        print("Only customers can add products to cart.")
+        return
 
     show_products()
 
@@ -31,12 +67,12 @@ def add_to_cart():
         return
 
     cart_service.add_to_cart(product, quantity)
+    product.reduce_stock(quantity)
 
     print("Product added to cart.")
 
 
 def remove_from_cart():
-
     cart_service.show_cart()
 
     product_id = int(input("\nEnter product ID to remove: "))
@@ -49,17 +85,26 @@ def remove_from_cart():
         print("Product not found in cart.")
 
 
-def main():
+def show_users():
+    if not AuthService.is_admin():
+        print("Only admin can see users.")
+        return
 
+    print("\n====== USERS ======")
+
+    for user in AuthService.get_all_users():
+        print(user)
+
+
+def customer_menu():
     while True:
-
-        print("\n====== SMART SHOP ======")
+        print("\n====== CUSTOMER MENU ======")
         print("1. Show Products")
         print("2. Add To Cart")
         print("3. Show Cart")
         print("4. Remove From Cart")
         print("5. Clear Cart")
-        print("6. Exit")
+        print("6. Logout")
 
         choice = input("Enter choice: ")
 
@@ -80,6 +125,64 @@ def main():
             print("Cart cleared.")
 
         elif choice == "6":
+            AuthService.logout()
+            print("Logged out.")
+            break
+
+        else:
+            print("Invalid choice.")
+
+
+def admin_menu():
+    while True:
+        print("\n====== ADMIN MENU ======")
+        print("1. Show Products")
+        print("2. Show Users")
+        print("3. Logout")
+
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            show_products()
+
+        elif choice == "2":
+            show_users()
+
+        elif choice == "3":
+            AuthService.logout()
+            print("Logged out.")
+            break
+
+        else:
+            print("Invalid choice.")
+
+
+def main_menu():
+    while True:
+        print("\n====== SMART SHOP ======")
+        print("1. Register")
+        print("2. Login")
+        print("3. Show Products")
+        print("4. Exit")
+
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            register()
+
+        elif choice == "2":
+            login()
+
+            if AuthService.is_admin():
+                admin_menu()
+
+            elif AuthService.is_customer():
+                customer_menu()
+
+        elif choice == "3":
+            show_products()
+
+        elif choice == "4":
             print("Goodbye!")
             break
 
@@ -87,5 +190,4 @@ def main():
             print("Invalid choice.")
 
 
-main()
-
+main_menu()
